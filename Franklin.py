@@ -3,44 +3,6 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import re
 
-def crear_excel(nombres, precios, nombre_archivo='output.xlsx'):
-    # Verificar si las listas tienen la misma longitud
-    if len(nombres) != len(precios):
-        raise ValueError("Las listas de nombres y precios deben tener la misma longitud.")
-
-    # Crear un DataFrame con pandas
-    datos = {'Nombre': nombres, 'Precio': precios}
-    df = pd.DataFrame(datos)
-
-    # Ordenar el DataFrame por nombres
-    df = df.sort_values(by='Nombre')
-
-    # Crear un archivo Excel
-    df.to_excel(nombre_archivo, index=False)
-    print(f"Archivo Excel '{nombre_archivo}' creado con éxito.")
-
-
-def agregar_a_excel(nombre, precio):
-    # Definir el nombre del archivo Excel
-    archivo_excel = 'productos.xlsx'
-
-    try:
-        # Intentar cargar el archivo existente
-        df = pd.read_excel(archivo_excel)
-    except FileNotFoundError:
-        # Si el archivo no existe, crear un DataFrame vacío
-        df = pd.DataFrame(columns=['Nombre', 'Precio'])
-
-    # Crear un nuevo DataFrame con los datos proporcionados
-    nuevo_producto = pd.DataFrame({'Nombre': [nombre], 'Precio': [precio]})
-
-    # Concatenar el nuevo DataFrame con el existente
-    df = pd.concat([df, nuevo_producto], ignore_index=True)
-
-    # Guardar el DataFrame en el archivo Excel
-    df.to_excel(archivo_excel, index=False)
-
-
 def crear_excel(nombres, precios, nombre_archivo):
     # Crear un DataFrame con las listas de Nombre y Precio
     data = {'Nombre': nombres, 'Precio': precios}
@@ -55,15 +17,9 @@ def formatearDatos2(datos):
     precios = []
     contador = len(datos)
     for i in range(contador):
-        match = re.search(r'€(\d+\.\d+)', datos[i]["Precio"])
-        if match:
-            precios.append('€'+match.group(1))
+        precios.append((re.compile(r'([€$£¥]?[\d,.]+)').search(datos[i]["Precio"]).group(1)))
         nombres.append(datos[i]["Nombre"]["textoNombre"])
-        
-    print(len(nombres))
-    print(len(precios))
-    # crear_excel(nombres, precios,'test.xlsx')
-
+    crear_excel(nombres, precios,'test.xlsx')
 
 def obtener_datos_telefonos(url):
     # Descargar la página
@@ -108,10 +64,6 @@ def main():
     url_telefonos = 'https://www.ishine.ie/index.php?route=common/home'
     datos_telefonos = obtener_datos_telefonos(url_telefonos)
     formatearDatos2(datos_telefonos)
-    # print(datos_telefonos["Nombre"]["textoNombre"])
-    # print(datos_telefonos["Precio"])
-    # agregar_a_excel(datos_telefonos["Nombre"]["textoNombre"], datos_telefonos["Precio"])
-    # print (datos_telefonos)
 
 if __name__ == "__main__":
     main()
