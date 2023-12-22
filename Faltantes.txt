@@ -1,0 +1,1 @@
+armado de ejecutable: python setup.py build
